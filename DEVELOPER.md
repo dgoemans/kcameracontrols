@@ -208,20 +208,20 @@ flatpak install flathub org.kde.Platform//6.8 org.kde.Sdk//6.8
 ### Local Build
 ```bash
 # Build the flatpak
-flatpak-builder --force-clean --install-deps-from=flathub build-dir org.kcameracontrols.KCameraControls.yml
+flatpak-builder --force-clean --install-deps-from=flathub build-dir com.davidgoemans.KCameraControls.yml
 
 # Install locally
-flatpak-builder --user --install --force-clean build-dir org.kcameracontrols.KCameraControls.yml
+flatpak-builder --user --install --force-clean build-dir com.davidgoemans.KCameraControls.yml
 
 # Run the installed flatpak
-flatpak run org.kcameracontrols.KCameraControls
+flatpak run com.davidgoemans.KCameraControls
 ```
 
 ### Export as Bundle
 ```bash
 # Build and export as a single-file bundle
-flatpak-builder --repo=repo --force-clean build-dir org.kcameracontrols.KCameraControls.yml
-flatpak build-bundle repo kcameracontrols.flatpak org.kcameracontrols.KCameraControls
+flatpak-builder --repo=repo --force-clean build-dir com.davidgoemans.KCameraControls.yml
+flatpak build-bundle repo kcameracontrols.flatpak com.davidgoemans.KCameraControls
 
 # Install the bundle
 flatpak install kcameracontrols.flatpak

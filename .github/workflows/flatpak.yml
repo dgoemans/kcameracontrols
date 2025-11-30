@@ -24,7 +24,7 @@ jobs:
       uses: flatpak/flatpak-github-actions/flatpak-builder@v6
       with:
         bundle: kcameracontrols.flatpak
-        manifest-path: org.kcameracontrols.KCameraControls.yml
+        manifest-path: com.davidgoemans.KCameraControls.yml
         cache-key: flatpak-builder-${{ github.sha }}
     
     - name: Upload Flatpak artifact

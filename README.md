@@ -30,7 +30,7 @@ The easiest way to install KCamera Controls is via Flatpak:
 flatpak install kcameracontrols.flatpak
 
 # Run the application
-flatpak run org.kcameracontrols.KCameraControls
+flatpak run com.davidgoemans.KCameraControls
 ```
 
 ### Quick Start (for development)

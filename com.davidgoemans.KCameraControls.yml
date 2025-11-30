@@ -1,4 +1,4 @@
-app-id: org.kcameracontrols.KCameraControls
+app-id: com.davidgoemans.KCameraControls
 runtime: org.kde.Platform
 runtime-version: '6.8'
 sdk: org.kde.Sdk
@@ -34,7 +34,7 @@ modules:
     buildsystem: simple
     build-commands:
       - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
-        --prefix=${FLATPAK_DEST} "PyQt6>=6.4.0" "PyQt6-Qt6>=6.4.0" --no-build-isolation
+        --prefix=${FLATPAK_DEST} PyQt6>=6.4.0 PyQt6-Qt6>=6.4.0 --no-build-isolation
     sources:
       - type: file
         url: https://files.pythonhosted.org/packages/73/8c/c662b7ebc4b2407d8679da68e11c2a2eb275f5f217e6a7784cd8c4a2d4b4/PyQt6-6.7.1-cp38-abi3-manylinux_2_28_x86_64.whl
@@ -45,15 +45,18 @@ modules:
       - type: file
         url: https://files.pythonhosted.org/packages/ea/d8/8da9d69d38c3f64acc61e3a68dbf61a3f8e32c7ee08bca8d96a58f0b1b5f/PyQt6_sip-13.8.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.whl
         sha256: a2e6c9f1e63cbb7d32f8bbb8e592e0228e555671e8f86066f8ac84c435e294db
+    # Note: These wheel URLs and hashes should be updated periodically.
+    # To update, visit https://pypi.org/project/PyQt6/ and download the latest
+    # manylinux wheels for PyQt6, PyQt6-Qt6, and PyQt6-sip.
 
   - name: kcameracontrols
     buildsystem: simple
     build-commands:
       - install -Dm755 kcameracontrols.py ${FLATPAK_DEST}/bin/kcameracontrols
       - cp -r ui backend ${FLATPAK_DEST}/bin/
-      - install -Dm644 org.kcameracontrols.KCameraControls.desktop ${FLATPAK_DEST}/share/applications/org.kcameracontrols.KCameraControls.desktop
-      - install -Dm644 org.kcameracontrols.KCameraControls.metainfo.xml ${FLATPAK_DEST}/share/metainfo/org.kcameracontrols.KCameraControls.metainfo.xml
-      - install -Dm644 resources/kcameracontrols.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/org.kcameracontrols.KCameraControls.svg
+      - install -Dm644 com.davidgoemans.KCameraControls.desktop ${FLATPAK_DEST}/share/applications/com.davidgoemans.KCameraControls.desktop
+      - install -Dm644 com.davidgoemans.KCameraControls.metainfo.xml ${FLATPAK_DEST}/share/metainfo/com.davidgoemans.KCameraControls.metainfo.xml
+      - install -Dm644 resources/kcameracontrols.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/com.davidgoemans.KCameraControls.svg
     sources:
       - type: dir
         path: .

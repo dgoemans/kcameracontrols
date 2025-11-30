@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.kcameracontrols.KCameraControls</id>
+  <id>com.davidgoemans.KCameraControls</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
   <name>KCamera Controls</name>
@@ -18,7 +18,7 @@
       <li>KDE Native: Designed to feel native to the KDE Plasma environment</li>
     </ul>
   </description>
-  <launchable type="desktop-id">org.kcameracontrols.KCameraControls.desktop</launchable>
+  <launchable type="desktop-id">com.davidgoemans.KCameraControls.desktop
   <url type="homepage">https://github.com/dgoemans/kcameracontrols</url>
   <url type="bugtracker">https://github.com/dgoemans/kcameracontrols/issues</url>
   <developer_name>KCamera Controls Contributors</developer_name>
