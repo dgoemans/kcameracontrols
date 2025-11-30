@@ -4,7 +4,7 @@ System tray integration for KCameraControls.
 Provides a system tray icon with context menu.
 """
 
-from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
+from PyQt6.QtWidgets import QSystemTrayIcon, QMenu, QStyle, QApplication
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import QObject, pyqtSignal
 
@@ -28,7 +28,6 @@ class SystemTray(QObject):
             self.tray_icon.setIcon(QIcon(icon_path))
         else:
             # Use a built-in icon as fallback
-            from PyQt6.QtWidgets import QStyle, QApplication
             style = QApplication.style()
             icon = style.standardIcon(QStyle.StandardPixmap.SP_MediaPlay)
             self.tray_icon.setIcon(icon)

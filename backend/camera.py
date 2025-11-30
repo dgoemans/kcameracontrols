@@ -6,6 +6,7 @@ This module provides functionality to detect V4L2 cameras and retrieve their con
 
 import subprocess
 import re
+import shutil
 from typing import List, Dict, Optional, Any
 
 
@@ -29,6 +30,18 @@ class CameraBackend:
     
     def __init__(self):
         self.cameras: List[CameraDevice] = []
+        self._v4l2_ctl_path = None
+    
+    def _get_v4l2_ctl_path(self) -> Optional[str]:
+        """
+        Get the path to v4l2-ctl executable.
+        
+        Returns:
+            Path to v4l2-ctl or None if not found
+        """
+        if self._v4l2_ctl_path is None:
+            self._v4l2_ctl_path = shutil.which('v4l2-ctl')
+        return self._v4l2_ctl_path
     
     def detect_cameras(self) -> List[CameraDevice]:
         """
@@ -39,10 +52,17 @@ class CameraBackend:
         """
         cameras = []
         
+        # Get v4l2-ctl path
+        v4l2_ctl = self._get_v4l2_ctl_path()
+        if not v4l2_ctl:
+            print("Warning: v4l2-ctl not found. Cannot detect cameras.")
+            self.cameras = cameras
+            return cameras
+        
         try:
             # List all video devices
             result = subprocess.run(
-                ['v4l2-ctl', '--list-devices'],
+                [v4l2_ctl, '--list-devices'],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -69,9 +89,6 @@ class CameraBackend:
                             camera = CameraDevice(device_path, current_name)
                             cameras.append(camera)
         
-        except FileNotFoundError:
-            # v4l2-ctl not installed
-            print("Warning: v4l2-ctl not found. Cannot detect cameras.")
         except subprocess.TimeoutExpired:
             print("Warning: Camera detection timed out.")
         except Exception as e:
@@ -92,9 +109,14 @@ class CameraBackend:
         """
         controls = {}
         
+        # Get v4l2-ctl path
+        v4l2_ctl = self._get_v4l2_ctl_path()
+        if not v4l2_ctl:
+            return controls
+        
         try:
             result = subprocess.run(
-                ['v4l2-ctl', '-d', camera.device_path, '--list-ctrls'],
+                [v4l2_ctl, '-d', camera.device_path, '--list-ctrls'],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -144,9 +166,14 @@ class CameraBackend:
         Returns:
             True if successful, False otherwise
         """
+        # Get v4l2-ctl path
+        v4l2_ctl = self._get_v4l2_ctl_path()
+        if not v4l2_ctl:
+            return False
+        
         try:
             result = subprocess.run(
-                ['v4l2-ctl', '-d', camera.device_path, '--set-ctrl', f'{control_name}={value}'],
+                [v4l2_ctl, '-d', camera.device_path, '--set-ctrl', f'{control_name}={value}'],
                 capture_output=True,
                 text=True,
                 timeout=5
@@ -167,9 +194,14 @@ class CameraBackend:
         Returns:
             Current value or None if not available
         """
+        # Get v4l2-ctl path
+        v4l2_ctl = self._get_v4l2_ctl_path()
+        if not v4l2_ctl:
+            return None
+        
         try:
             result = subprocess.run(
-                ['v4l2-ctl', '-d', camera.device_path, '--get-ctrl', control_name],
+                [v4l2_ctl, '-d', camera.device_path, '--get-ctrl', control_name],
                 capture_output=True,
                 text=True,
                 timeout=5

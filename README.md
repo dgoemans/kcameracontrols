@@ -93,6 +93,14 @@ Run component tests:
 python3 test_components.py
 ```
 
+⚠️ **Testing Status**: This application has been developed but NOT fully tested in a real environment. Testing needed:
+- Real V4L2 cameras
+- Actual KDE Plasma system tray
+- Visual UI verification
+- End-to-end user workflows
+
+Contributions for testing on real systems are welcome!
+
 ### Documentation
 
 - [DEVELOPER.md](DEVELOPER.md) - Developer documentation and architecture

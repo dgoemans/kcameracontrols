@@ -223,25 +223,45 @@ While the current implementation meets all requirements, potential improvements 
 
 ## Performance
 
-- **Startup Time**: < 2 seconds
-- **Memory Usage**: ~30-50MB
-- **CPU Usage**: Minimal when idle
-- **Control Latency**: < 100ms
+**Expected performance** (untested):
+- **Startup Time**: Should be < 2 seconds
+- **Memory Usage**: Estimated ~30-50MB
+- **CPU Usage**: Should be minimal when idle
+- **Control Latency**: Expected < 100ms for control changes
 
-## Compatibility Matrix
+*Note: These are estimates based on similar PyQt6 applications. Actual performance needs to be measured.*
 
-| Component         | Status | Notes                           |
-|-------------------|--------|---------------------------------|
-| KDE Plasma 5      | ✅     | Primary target, full support    |
-| KDE Plasma 6      | ✅     | Modern Qt6 support              |
-| GNOME            | ✅     | Works, may need tray extension  |
-| XFCE             | ✅     | Full support                    |
-| Other DEs        | ✅     | Basic tray support required     |
-| X11              | ✅     | Fully tested                    |
-| Wayland          | ✅     | PyQt6 supports Wayland          |
-| Ubuntu 20.04+    | ✅     | Tested                          |
-| Fedora           | ✅     | Should work                     |
-| Arch Linux       | ✅     | Should work                     |
+## Compatibility
+
+**Note: This project has NOT been tested on actual systems yet.** The following is based on expected compatibility given the technologies used:
+
+### Expected Compatibility (Untested)
+
+| Component         | Expected | Reasoning                              |
+|-------------------|----------|----------------------------------------|
+| KDE Plasma 5/6    | Should work | Primary target, uses Qt6            |
+| GNOME            | Should work | May need tray extension installed   |
+| XFCE             | Should work | Has system tray support             |
+| X11              | Should work | PyQt6 supports X11                  |
+| Wayland          | Should work | PyQt6 has Wayland support           |
+| Linux + V4L2     | Required | V4L2 is a hard requirement          |
+
+### Known Requirements
+- Linux kernel with V4L2 support
+- `v4l-utils` package installed
+- Python 3.8 or higher
+- PyQt6
+- A desktop environment with system tray support
+- At least one V4L2-compatible camera
+
+### Testing Status
+⚠️ **This application has been developed but not fully tested** in a real KDE Plasma environment with actual cameras. The code compiles without errors and the backend logic has been verified, but:
+- No actual camera testing has been performed
+- No real system tray testing has been done
+- UI has not been verified visually
+- Installation script has not been tested
+
+**Contributions welcome for testing on real systems!**
 
 ## Documentation
 
@@ -269,7 +289,7 @@ For issues, feature requests, or contributions:
 
 ## Summary
 
-KCamera Controls successfully delivers a complete, production-ready camera controls application for KDE Plasma. All original requirements have been met:
+KCamera Controls successfully delivers a **code-complete** camera controls application for KDE Plasma. All original requirements have been implemented in code:
 
 ✅ System tray integration with icon  
 ✅ Left-click opens UI, right-click shows menu  
@@ -280,4 +300,19 @@ KCamera Controls successfully delivers a complete, production-ready camera contr
 ✅ Clean, documented codebase  
 ✅ Easy installation  
 
-The application is ready for use and provides a solid foundation for future enhancements.
+**However**, this application has NOT been tested in a real environment with:
+- ❌ Actual V4L2 cameras
+- ❌ Real KDE Plasma system tray
+- ❌ Visual verification of UI
+- ❌ End-to-end user workflows
+
+The code is complete and should work based on the APIs used, but **real-world testing is required** before this can be considered production-ready.
+
+### Next Steps for Production Use
+1. Test with real V4L2 cameras
+2. Verify UI appearance and behavior in KDE Plasma
+3. Test installation script on actual Linux systems
+4. Validate system tray integration
+5. Test all user workflows end-to-end
+6. Fix any bugs discovered during testing
+7. Get user feedback and iterate

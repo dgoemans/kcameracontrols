@@ -6,7 +6,7 @@ Displays and manages the effects pipeline.
 
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
-    QScrollArea, QFrame, QLabel, QMenu
+    QScrollArea, QFrame, QLabel, QMenu, QStyle, QApplication
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QIcon, QAction
@@ -40,17 +40,15 @@ class EffectRow(QFrame):
         
         layout.addStretch()
         
-        # Config button
-        config_btn = QPushButton("⚙")  # Settings icon
+        # Config button with text instead of emoji for accessibility
+        config_btn = QPushButton("Configure")
         config_btn.setToolTip("Configure effect")
-        config_btn.setFixedSize(30, 30)
         config_btn.clicked.connect(lambda: self.configure_requested.emit(self.index))
         layout.addWidget(config_btn)
         
-        # Delete button
-        delete_btn = QPushButton("🗑")  # Trash icon
+        # Delete button with text instead of emoji for accessibility
+        delete_btn = QPushButton("Remove")
         delete_btn.setToolTip("Remove effect")
-        delete_btn.setFixedSize(30, 30)
         delete_btn.clicked.connect(lambda: self.delete_requested.emit(self.index))
         layout.addWidget(delete_btn)
 

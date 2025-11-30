@@ -122,10 +122,9 @@ class MainWindow(QMainWindow):
         self.camera_combo.currentIndexChanged.connect(self.on_camera_changed)
         input_layout.addWidget(self.camera_combo)
         
-        # Refresh button
-        refresh_btn = QPushButton("🔄")
+        # Refresh button with text instead of emoji
+        refresh_btn = QPushButton("Refresh")
         refresh_btn.setToolTip("Refresh camera list")
-        refresh_btn.setFixedSize(30, 30)
         refresh_btn.clicked.connect(self.refresh_cameras)
         input_layout.addWidget(refresh_btn)
         
