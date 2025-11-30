@@ -13,7 +13,7 @@ finish-args:
   - --device=all
   # System tray
   - --talk-name=org.kde.StatusNotifierWatcher
-  - --own-name=org.kde.StatusNotifierItem-*
+  - --own-name=org.kde.StatusNotifierItem
   # D-Bus access for KDE integration
   - --talk-name=org.freedesktop.Notifications
   - --filesystem=xdg-run/pipewire-0:ro
