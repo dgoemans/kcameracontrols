@@ -18,7 +18,7 @@ if script_dir == "/usr/local/bin":
     if os.path.isdir(install_dir) and install_dir not in sys.path:
         sys.path.insert(0, install_dir)
 
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
 from PyQt6.QtCore import Qt
 
 from ui.main_window import MainWindow
@@ -45,7 +45,7 @@ class KCameraControlsApp:
         self.system_tray.quit_requested.connect(self.quit_application)
         
         # Check if system tray is available
-        if not QApplication.instance().isSystemTrayAvailable():
+        if not QSystemTrayIcon.isSystemTrayAvailable():
             print("Warning: System tray is not available on this system")
         
         self.system_tray.show()
