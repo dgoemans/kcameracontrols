@@ -1,0 +1,59 @@
+app-id: org.kcameracontrols.KCameraControls
+runtime: org.kde.Platform
+runtime-version: '6.8'
+sdk: org.kde.Sdk
+command: kcameracontrols
+finish-args:
+  # X11 + XShm access
+  - --share=ipc
+  - --socket=fallback-x11
+  # Wayland access
+  - --socket=wayland
+  # Camera access
+  - --device=all
+  # System tray
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --own-name=org.kde.StatusNotifierItem-*
+  # D-Bus access for KDE integration
+  - --talk-name=org.freedesktop.Notifications
+  - --filesystem=xdg-run/pipewire-0:ro
+modules:
+  - name: v4l-utils
+    config-opts:
+      - --disable-static
+      - --disable-doxygen-doc
+      - --disable-libdvbv5
+      - --disable-v4l-utils
+      - --disable-qv4l2
+    sources:
+      - type: archive
+        url: https://www.linuxtv.org/downloads/v4l-utils/v4l-utils-1.24.1.tar.bz2
+        sha256: cbb7fe8a6307f5ce533a05cded70bb93c3ba06395ab9b6d007eb53b75d805f5b
+
+  - name: python3-PyQt6
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}"
+        --prefix=${FLATPAK_DEST} "PyQt6>=6.4.0" "PyQt6-Qt6>=6.4.0" --no-build-isolation
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/73/8c/c662b7ebc4b2407d8679da68e11c2a2eb275f5f217e6a7784cd8c4a2d4b4/PyQt6-6.7.1-cp38-abi3-manylinux_2_28_x86_64.whl
+        sha256: 3672a82cee5a6ca9a49747e1d8f55f7d99ca66b9f2102547629ad43d6dfac370
+      - type: file
+        url: https://files.pythonhosted.org/packages/3d/18/d52173c2d091fe8e04b36e501b8e37cfb8596c3c66cd92fd3694a9a1d0ca/PyQt6_Qt6-6.7.3-py3-none-manylinux_2_28_x86_64.whl
+        sha256: d94618ac472c278f6e58422c1d471e5b1d02ce0b6cefa2ef5c3df111fcfb8d11
+      - type: file
+        url: https://files.pythonhosted.org/packages/ea/d8/8da9d69d38c3f64acc61e3a68dbf61a3f8e32c7ee08bca8d96a58f0b1b5f/PyQt6_sip-13.8.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.whl
+        sha256: a2e6c9f1e63cbb7d32f8bbb8e592e0228e555671e8f86066f8ac84c435e294db
+
+  - name: kcameracontrols
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 kcameracontrols.py ${FLATPAK_DEST}/bin/kcameracontrols
+      - cp -r ui backend ${FLATPAK_DEST}/bin/
+      - install -Dm644 org.kcameracontrols.KCameraControls.desktop ${FLATPAK_DEST}/share/applications/org.kcameracontrols.KCameraControls.desktop
+      - install -Dm644 org.kcameracontrols.KCameraControls.metainfo.xml ${FLATPAK_DEST}/share/metainfo/org.kcameracontrols.KCameraControls.metainfo.xml
+      - install -Dm644 resources/kcameracontrols.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/org.kcameracontrols.KCameraControls.svg
+    sources:
+      - type: dir
+        path: .

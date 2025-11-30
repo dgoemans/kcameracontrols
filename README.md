@@ -21,14 +21,30 @@ A camera controls pipeline application for KDE Plasma on Linux, providing a syst
 
 ## Installation
 
+### Flatpak (Recommended)
+
+The easiest way to install KCamera Controls is via Flatpak:
+
+```bash
+# Install the flatpak (after downloading from releases or building locally)
+flatpak install kcameracontrols.flatpak
+
+# Run the application
+flatpak run org.kcameracontrols.KCameraControls
+```
+
 ### Quick Start (for development)
 
 ```bash
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Install v4l-utils (for camera support)
+# Install v4l-utils
+# On Debian/Ubuntu:
 sudo apt install v4l-utils
+
+# On Fedora/RHEL:
+sudo dnf install v4l-utils
 
 # Run the application
 python3 kcameracontrols.py
@@ -36,14 +52,23 @@ python3 kcameracontrols.py
 
 ### System-wide Installation
 
+The installation script automatically detects your Linux distribution and installs dependencies accordingly.
+
+**Supported distributions:**
+- Debian/Ubuntu (using apt)
+- Fedora/RHEL/CentOS (using dnf)
+
 ```bash
 # Run the installation script
 ./install.sh
 ```
 
 This will:
+- Detect your Linux distribution
+- Install Python 3 if not present
+- Install pip3 if not present
+- Install v4l-utils (provides v4l2-ctl) using the appropriate package manager
 - Install Python dependencies
-- Install v4l-utils if not present
 - Copy application files to `/usr/local/share/kcameracontrols`
 - Create desktop entry for KDE application menu
 - Make the application available system-wide

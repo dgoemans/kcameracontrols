@@ -179,6 +179,60 @@ python3 kcameracontrols.py
 - X11 or Wayland
 - KDE Plasma (recommended, but works on any DE)
 
+### Supported Distributions
+The installation script supports the following distributions:
+- **Debian/Ubuntu**: Uses `apt` package manager
+- **Fedora/RHEL/CentOS**: Uses `dnf` package manager
+
+The script automatically:
+- Detects the distribution
+- Installs Python 3 if needed
+- Installs pip3 if needed
+- Installs v4l-utils using the appropriate package manager
+
+## Building Flatpak
+
+### Prerequisites
+```bash
+# Install flatpak and flatpak-builder
+sudo dnf install flatpak flatpak-builder  # Fedora
+sudo apt install flatpak flatpak-builder  # Debian/Ubuntu
+
+# Add Flathub repository
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# Install KDE runtime and SDK
+flatpak install flathub org.kde.Platform//6.8 org.kde.Sdk//6.8
+```
+
+### Local Build
+```bash
+# Build the flatpak
+flatpak-builder --force-clean --install-deps-from=flathub build-dir org.kcameracontrols.KCameraControls.yml
+
+# Install locally
+flatpak-builder --user --install --force-clean build-dir org.kcameracontrols.KCameraControls.yml
+
+# Run the installed flatpak
+flatpak run org.kcameracontrols.KCameraControls
+```
+
+### Export as Bundle
+```bash
+# Build and export as a single-file bundle
+flatpak-builder --repo=repo --force-clean build-dir org.kcameracontrols.KCameraControls.yml
+flatpak build-bundle repo kcameracontrols.flatpak org.kcameracontrols.KCameraControls
+
+# Install the bundle
+flatpak install kcameracontrols.flatpak
+```
+
+### CI/CD Pipeline
+The project includes a GitHub Actions workflow (`.github/workflows/flatpak.yml`) that:
+- Automatically builds flatpak on every push to main
+- Creates flatpak bundles for releases (tagged commits)
+- Uploads artifacts for testing
+
 ## Future Enhancements
 
 Potential features for future development:
