@@ -7,6 +7,7 @@ Provides a system tray icon with context menu.
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu, QStyle, QApplication
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import QObject, pyqtSignal
+import os
 
 
 class SystemTray(QObject):
@@ -23,14 +24,29 @@ class SystemTray(QObject):
         # Create system tray icon
         self.tray_icon = QSystemTrayIcon()
         
-        # Set icon (use default camera icon if not provided)
-        if icon_path:
+        # Set icon
+        if icon_path and os.path.exists(icon_path):
             self.tray_icon.setIcon(QIcon(icon_path))
         else:
-            # Use a built-in icon as fallback
-            style = QApplication.style()
-            icon = style.standardIcon(QStyle.StandardPixmap.SP_MediaPlay)
-            self.tray_icon.setIcon(icon)
+            # Try to find the icon in standard locations
+            found_icon = False
+            possible_paths = [
+                os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'kcameracontrols.svg'),
+                '/usr/local/share/kcameracontrols/resources/kcameracontrols.svg',
+                '/usr/share/icons/hicolor/scalable/apps/kcameracontrols.svg',
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    self.tray_icon.setIcon(QIcon(path))
+                    found_icon = True
+                    break
+            
+            if not found_icon:
+                # Use a built-in camera icon as fallback
+                style = QApplication.style()
+                icon = style.standardIcon(QStyle.StandardPixmap.SP_DriveDVD)  # Camera-like icon
+                self.tray_icon.setIcon(icon)
         
         self.tray_icon.setToolTip("KCamera Controls")
         

@@ -33,6 +33,9 @@ class KCameraControlsApp:
         self.app.setApplicationName("KCamera Controls")
         self.app.setOrganizationName("KCameraControls")
         
+        # Prevent app from quitting when last window closes
+        self.app.setQuitOnLastWindowClosed(False)
+        
         # Note: High DPI support is automatic in Qt6/PyQt6, no need to set AA_UseHighDpiPixmaps
         
         # Main window

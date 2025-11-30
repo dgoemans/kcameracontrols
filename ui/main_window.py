@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QIcon
+import os
 
 from backend.camera import CameraBackend, CameraDevice
 from backend.effects import EffectsPipeline
@@ -28,13 +29,18 @@ class EffectConfigDialog(QDialog):
         
         self.setWindowTitle(f"Configure {effect.name}")
         self.setModal(True)
+        self.setMinimumSize(400, 150)  # Set minimum size to ensure slider is visible
         self.setup_ui()
     
     def setup_ui(self):
         """Set up the dialog UI."""
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)  # Add padding
+        layout.setSpacing(10)
         
         form_layout = QFormLayout()
+        form_layout.setHorizontalSpacing(15)
+        form_layout.setVerticalSpacing(10)
         
         if self.camera:
             # Get the control for this effect
@@ -48,6 +54,7 @@ class EffectConfigDialog(QDialog):
                 slider = QSlider(Qt.Orientation.Horizontal)
                 slider.setMinimum(control.get('min', 0))
                 slider.setMaximum(control.get('max', 100))
+                slider.setMinimumWidth(250)  # Ensure slider is wide enough
                 
                 # Get current value
                 current_value = self.camera_backend.get_camera_control_value(
@@ -60,6 +67,7 @@ class EffectConfigDialog(QDialog):
                 
                 # Value label
                 value_label = QLabel(str(slider.value()))
+                value_label.setMinimumWidth(40)
                 slider.valueChanged.connect(lambda v: value_label.setText(str(v)))
                 slider.valueChanged.connect(
                     lambda v: self.camera_backend.set_camera_control(
@@ -73,11 +81,14 @@ class EffectConfigDialog(QDialog):
                 
                 form_layout.addRow(f"{control_name.replace('_', ' ').title()}:", control_layout)
             else:
-                form_layout.addRow(QLabel(f"Control '{control_name}' not available for this camera"))
+                label = QLabel(f"Control '{control_name}' not available for this camera")
+                label.setWordWrap(True)
+                form_layout.addRow(label)
         else:
             form_layout.addRow(QLabel("No camera selected"))
         
         layout.addLayout(form_layout)
+        layout.addStretch()
         
         # Dialog buttons
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
@@ -100,8 +111,28 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("KCamera Controls")
         self.setMinimumSize(600, 500)
         
+        # Set window icon
+        icon_path = self._get_icon_path()
+        if icon_path and os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+        
         self.setup_ui()
         self.refresh_cameras()
+    
+    def _get_icon_path(self):
+        """Get the path to the application icon."""
+        # Try multiple locations
+        possible_paths = [
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'kcameracontrols.svg'),
+            '/usr/local/share/kcameracontrols/resources/kcameracontrols.svg',
+            '/usr/share/icons/hicolor/scalable/apps/kcameracontrols.svg',
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                return path
+        
+        return None
     
     def setup_ui(self):
         """Set up the main window UI."""
@@ -133,6 +164,7 @@ class MainWindow(QMainWindow):
         # Effects panel
         self.effects_panel = EffectsPanel(self.effects_pipeline)
         self.effects_panel.effect_configured.connect(self.configure_effect)
+        self.effects_panel.effect_removed.connect(self.on_effect_removed)
         layout.addWidget(self.effects_panel)
         
         # Apply Breeze-style theme
@@ -198,9 +230,12 @@ class MainWindow(QMainWindow):
         if camera:
             self.current_camera = camera
             # Get camera controls
-            self.camera_backend.get_camera_controls(camera)
+            controls = self.camera_backend.get_camera_controls(camera)
+            # Update effects panel with available controls
+            self.effects_panel.set_available_controls(controls)
         else:
             self.current_camera = None
+            self.effects_panel.set_available_controls(None)
     
     def configure_effect(self, effect_index):
         """Open configuration dialog for an effect."""
@@ -214,6 +249,19 @@ class MainWindow(QMainWindow):
                 self
             )
             dialog.exec()
+    
+    def on_effect_removed(self, effect_index, effect):
+        """Handle effect removal by resetting its control to default."""
+        if self.current_camera and effect:
+            control_name = effect.effect_type.value
+            controls = self.current_camera.controls
+            
+            if control_name in controls:
+                # Reset to default value
+                default_value = controls[control_name].get('default', 0)
+                self.camera_backend.set_camera_control(
+                    self.current_camera, control_name, default_value
+                )
     
     def show_about_dialog(self):
         """Show the about dialog."""
