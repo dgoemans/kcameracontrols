@@ -132,6 +132,38 @@ Contributions for testing on real systems are welcome!
 - [SCREENSHOTS.md](SCREENSHOTS.md) - UI screenshots and documentation
 - [UI_MOCKUP.md](UI_MOCKUP.md) - Detailed UI mockup and design specs
 
+## Troubleshooting
+
+### Control sliders don't respond across the full range
+
+Some camera controls (especially zoom) may report a range like 100-500, but only respond to values up to 200. **This is normal** and is due to hardware limitations, not a software issue.
+
+- V4L2 drivers report theoretical maximum values
+- Camera hardware may not use the full theoretical range
+- Different camera models have different effective ranges
+- The application displays the full V4L2-reported range for transparency
+
+**Solution:** Adjust the slider to find the effective range for your camera. The actual useful range varies by camera model.
+
+### Camera controls not available
+
+If a control (like zoom or focus) isn't available in the "Add Effect" menu:
+
+- Your camera doesn't support that control
+- The control isn't exposed via V4L2
+- Install `v4l2-ctl` and run `v4l2-ctl -d /dev/video0 --list-ctrls` to see available controls
+
+### Preview doesn't open
+
+The preview feature requires one of these video players:
+- mpv (recommended)
+- ffplay
+- VLC
+- Cheese
+- guvcview
+
+Install one using your package manager: `sudo apt install mpv`
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

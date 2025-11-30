@@ -10,6 +10,10 @@ import shutil
 from typing import List, Dict, Optional, Any
 
 
+# Control types that should have min/max validation
+INTEGER_CONTROL_TYPES = ('int', 'integer', 'int64')
+
+
 class CameraDevice:
     """Represents a V4L2 camera device."""
     
@@ -126,9 +130,14 @@ class CameraBackend:
                 # Parse control information
                 # Example line: brightness 0x00980900 (int)    : min=0 max=255 step=1 default=128 value=128
                 for line in result.stdout.strip().split('\n'):
+                    # Skip empty lines
+                    if not line.strip():
+                        continue
+                    
                     match = re.match(
                         r'^\s*(\w+)\s+0x[0-9a-f]+\s+\((\w+)\)\s*:\s*(.+)$',
-                        line
+                        line,
+                        re.IGNORECASE
                     )
                     if match:
                         name = match.group(1)
@@ -145,6 +154,17 @@ class CameraBackend:
                             param_name = param_match.group(1)
                             param_value = int(param_match.group(2))
                             control[param_name] = param_value
+                        
+                        # Validate that we have at least min and max for integer controls
+                        if ctrl_type.lower() in INTEGER_CONTROL_TYPES:
+                            if 'min' not in control or 'max' not in control:
+                                print(f"Warning: Control '{name}' is missing min/max values, skipping")
+                                continue
+                            
+                            # Ensure min <= max
+                            if control['min'] > control['max']:
+                                print(f"Warning: Control '{name}' has min > max, swapping values")
+                                control['min'], control['max'] = control['max'], control['min']
                         
                         controls[name] = control
         

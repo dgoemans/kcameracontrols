@@ -52,36 +52,66 @@ class EffectConfigDialog(QDialog):
             if control_name in controls:
                 control = controls[control_name]
                 
-                # Create slider for the control
-                slider = QSlider(Qt.Orientation.Horizontal)
-                slider.setMinimum(control.get('min', 0))
-                slider.setMaximum(control.get('max', 100))
-                slider.setMinimumWidth(250)  # Ensure slider is wide enough
+                # Get control range - use V4L2 reported values
+                # These are the actual device-specific ranges
+                ctrl_min = control.get('min')
+                ctrl_max = control.get('max')
                 
-                # Get current value
-                current_value = self.camera_backend.get_camera_control_value(
-                    self.camera, control_name
-                )
-                if current_value is not None:
-                    slider.setValue(current_value)
+                # Validate that we have proper range values
+                if ctrl_min is None or ctrl_max is None:
+                    label = QLabel(f"Control '{control_name}' has invalid range information")
+                    label.setWordWrap(True)
+                    form_layout.addRow(label)
+                elif ctrl_min >= ctrl_max:
+                    label = QLabel(f"Control '{control_name}' has invalid range (min >= max)")
+                    label.setWordWrap(True)
+                    form_layout.addRow(label)
                 else:
-                    slider.setValue(control.get('default', 0))
-                
-                # Value label
-                value_label = QLabel(str(slider.value()))
-                value_label.setMinimumWidth(40)
-                slider.valueChanged.connect(lambda v: value_label.setText(str(v)))
-                slider.valueChanged.connect(
-                    lambda v: self.camera_backend.set_camera_control(
-                        self.camera, control_name, v
+                    # Create slider for the control
+                    slider = QSlider(Qt.Orientation.Horizontal)
+                    slider.setMinimum(ctrl_min)
+                    slider.setMaximum(ctrl_max)
+                    slider.setMinimumWidth(250)  # Ensure slider is wide enough
+                    
+                    # Set step size if available
+                    if 'step' in control and control['step'] > 0:
+                        slider.setSingleStep(control['step'])
+                        slider.setPageStep(control['step'] * 10)
+                    
+                    # Get current value
+                    current_value = self.camera_backend.get_camera_control_value(
+                        self.camera, control_name
                     )
-                )
-                
-                control_layout = QHBoxLayout()
-                control_layout.addWidget(slider)
-                control_layout.addWidget(value_label)
-                
-                form_layout.addRow(f"{control_name.replace('_', ' ').title()}:", control_layout)
+                    if current_value is not None:
+                        slider.setValue(current_value)
+                    else:
+                        slider.setValue(control.get('default', ctrl_min))
+                    
+                    # Value label showing current value and range
+                    value_label = QLabel(f"{slider.value()} ({ctrl_min} - {ctrl_max})")
+                    value_label.setMinimumWidth(100)
+                    
+                    def update_value_label(v):
+                        value_label.setText(f"{v} ({ctrl_min} - {ctrl_max})")
+                    
+                    slider.valueChanged.connect(update_value_label)
+                    slider.valueChanged.connect(
+                        lambda v: self.camera_backend.set_camera_control(
+                            self.camera, control_name, v
+                        )
+                    )
+                    
+                    control_layout = QHBoxLayout()
+                    control_layout.addWidget(slider)
+                    control_layout.addWidget(value_label)
+                    
+                    form_layout.addRow(f"{control_name.replace('_', ' ').title()}:", control_layout)
+                    
+                    # Add informational text about the range
+                    info_text = QLabel("Effective range may vary by device")
+                    info_text.setStyleSheet("color: #7f8c8d; font-size: 10px;")
+                    info_text.setWordWrap(True)
+                    form_layout.addRow("", info_text)
             else:
                 label = QLabel(f"Control '{control_name}' not available for this camera")
                 label.setWordWrap(True)
