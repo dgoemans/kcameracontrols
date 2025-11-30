@@ -14,18 +14,39 @@ A camera controls pipeline application for KDE Plasma on Linux, providing a syst
 
 - Python 3.8+
 - PyQt6 or PySide6
-- v4l2-ctl (for camera detection and control)
+- v4l2-ctl (for camera detection and control) - install via `sudo apt install v4l-utils`
 - Linux with V4L2 support
+- X11 or Wayland display server (for GUI)
+- KDE Plasma desktop environment (recommended)
 
 ## Installation
 
+### Quick Start (for development)
+
 ```bash
-# Install dependencies
+# Install Python dependencies
 pip install -r requirements.txt
+
+# Install v4l-utils (for camera support)
+sudo apt install v4l-utils
 
 # Run the application
 python3 kcameracontrols.py
 ```
+
+### System-wide Installation
+
+```bash
+# Run the installation script
+./install.sh
+```
+
+This will:
+- Install Python dependencies
+- Install v4l-utils if not present
+- Copy application files to `/usr/local/share/kcameracontrols`
+- Create desktop entry for KDE application menu
+- Make the application available system-wide
 
 ## Usage
 

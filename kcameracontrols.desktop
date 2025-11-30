@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=KCamera Controls
+GenericName=Camera Controls Pipeline
+Comment=Manage camera settings and effects for KDE Plasma
+Icon=camera-web
+Exec=/usr/bin/python3 /usr/local/bin/kcameracontrols
+Terminal=false
+Categories=AudioVideo;Video;Qt;KDE;
+StartupNotify=false
+X-KDE-autostart-after=panel
+X-DBUS-StartupType=Unique
