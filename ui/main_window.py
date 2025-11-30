@@ -12,6 +12,8 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QIcon
 import os
+import subprocess
+import shutil
 
 from backend.camera import CameraBackend, CameraDevice
 from backend.effects import EffectsPipeline
@@ -253,16 +255,23 @@ class MainWindow(QMainWindow):
         if not self.current_camera:
             return
         
-        import subprocess
-        import shutil
+        # Validate device path for security
+        device_path = self.current_camera.device_path
+        if not device_path.startswith('/dev/video'):
+            QMessageBox.warning(
+                self,
+                "Invalid Device",
+                f"Invalid camera device path: {device_path}"
+            )
+            return
         
         # Try to find a suitable video player
         viewers = [
-            ('mpv', ['mpv', f'av://v4l2:{self.current_camera.device_path}', '--profile=low-latency']),
-            ('ffplay', ['ffplay', '-f', 'v4l2', '-i', self.current_camera.device_path]),
-            ('vlc', ['vlc', f'v4l2://{self.current_camera.device_path}']),
-            ('cheese', ['cheese', '-d', self.current_camera.device_path]),
-            ('guvcview', ['guvcview', '-d', self.current_camera.device_path]),
+            ('mpv', ['mpv', f'av://v4l2:{device_path}', '--profile=low-latency']),
+            ('ffplay', ['ffplay', '-f', 'v4l2', '-i', device_path]),
+            ('vlc', ['vlc', f'v4l2://{device_path}']),
+            ('cheese', ['cheese', '-d', device_path]),
+            ('guvcview', ['guvcview', '-d', device_path]),
         ]
         
         viewer_found = False
@@ -273,7 +282,7 @@ class MainWindow(QMainWindow):
                     viewer_found = True
                     break
                 except Exception as e:
-                    print(f"Failed to launch {viewer_name}: {e}")
+                    # Log error but continue trying other viewers
                     continue
         
         if not viewer_found:

@@ -37,9 +37,10 @@ class EffectRow(QFrame):
         layout.setContentsMargins(10, 5, 10, 5)
         
         # Drag handle (visual indicator)
-        drag_label = QLabel("☰")
-        drag_label.setStyleSheet("color: #7f8c8d; font-size: 16px;")
-        drag_label.setToolTip("Drag to reorder")
+        drag_label = QLabel("⋮⋮")  # Using vertical ellipsis which is more accessible
+        drag_label.setStyleSheet("color: #7f8c8d; font-size: 14px;")
+        drag_label.setToolTip("Drag to reorder effects")
+        drag_label.setAccessibleDescription("Drag handle for reordering effect")
         layout.addWidget(drag_label)
         
         # Effect title
