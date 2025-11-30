@@ -18,7 +18,7 @@
       <li>KDE Native: Designed to feel native to the KDE Plasma environment</li>
     </ul>
   </description>
-  <launchable type="desktop-id">com.davidgoemans.KCameraControls.desktop
+  <launchable type="desktop-id">com.davidgoemans.KCameraControls.desktop</launchable>
   <url type="homepage">https://github.com/dgoemans/kcameracontrols</url>
   <url type="bugtracker">https://github.com/dgoemans/kcameracontrols/issues</url>
   <developer_name>KCamera Controls Contributors</developer_name>
