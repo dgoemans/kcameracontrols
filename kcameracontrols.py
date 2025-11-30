@@ -6,6 +6,18 @@ A camera controls pipeline for KDE Plasma on Linux.
 """
 
 import sys
+import os
+
+# Add installation directory to Python path if installed system-wide
+# This allows importing ui and backend modules when the script is in /usr/local/bin
+# but the modules are in /usr/local/share/kcameracontrols
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Check if we're running from /usr/local/bin (system installation)
+if script_dir == "/usr/local/bin":
+    install_dir = "/usr/local/share/kcameracontrols"
+    if os.path.isdir(install_dir) and install_dir not in sys.path:
+        sys.path.insert(0, install_dir)
+
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
 
