@@ -251,27 +251,50 @@ class MainWindow(QMainWindow):
             # Disable preview button
             self.preview_btn.setEnabled(False)
     
+    def _apply_camera_control(self, control_name: str) -> bool:
+        """
+        Apply a camera control with its current value.
+        
+        This is a helper method that gets the current value from the camera
+        and re-applies it. This ensures the control is set and can be used
+        to make effects immediately visible in the camera output.
+        
+        Args:
+            control_name: Name of the V4L2 control to apply
+            
+        Returns:
+            True if the control was applied, False otherwise
+        """
+        if not self.current_camera:
+            return False
+        
+        controls = self.current_camera.controls
+        if control_name not in controls:
+            return False
+        
+        # Get current value from camera
+        current_value = self.camera_backend.get_camera_control_value(
+            self.current_camera, control_name
+        )
+        if current_value is None:
+            return False
+        
+        # Re-apply to ensure it's set
+        return self.camera_backend.set_camera_control(
+            self.current_camera, control_name, current_value
+        )
+    
     def apply_all_effects(self):
         """Apply all enabled effects in the pipeline to the camera."""
         if not self.current_camera:
             return
         
         effects = self.effects_pipeline.get_all_effects()
-        controls = self.current_camera.controls
         
         for effect in effects:
             if effect.enabled:
                 control_name = effect.effect_type.value
-                if control_name in controls:
-                    # Get current value from camera
-                    current_value = self.camera_backend.get_camera_control_value(
-                        self.current_camera, control_name
-                    )
-                    if current_value is not None:
-                        # Re-apply to ensure it's set
-                        self.camera_backend.set_camera_control(
-                            self.current_camera, control_name, current_value
-                        )
+                self._apply_camera_control(control_name)
     
     def open_preview(self):
         """Open camera preview using external application."""
@@ -350,22 +373,16 @@ class MainWindow(QMainWindow):
                 )
     
     def on_effect_added(self, effect_type):
-        """Handle effect addition by applying it with current camera value."""
+        """
+        Handle effect addition by applying it with current camera value.
+        
+        When an effect is added, we apply the camera's current control value
+        to ensure the effect is immediately visible in the camera output without
+        changing the current appearance. Users can then adjust the effect later.
+        """
         if self.current_camera:
             control_name = effect_type.value
-            controls = self.current_camera.controls
-            
-            if control_name in controls:
-                # Get current value from camera and ensure it's applied
-                # This makes the effect visible immediately in the preview
-                current_value = self.camera_backend.get_camera_control_value(
-                    self.current_camera, control_name
-                )
-                if current_value is not None:
-                    # Re-apply current value to ensure it's set
-                    self.camera_backend.set_camera_control(
-                        self.current_camera, control_name, current_value
-                    )
+            self._apply_camera_control(control_name)
     
     def show_about_dialog(self):
         """Show the about dialog."""
