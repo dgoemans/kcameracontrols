@@ -8,8 +8,8 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
     QScrollArea, QFrame, QLabel, QMenu, QStyle, QApplication
 )
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtCore import Qt, pyqtSignal, QMimeData, QPoint
+from PyQt6.QtGui import QIcon, QAction, QDrag
 from backend.effects import Effect, EffectType, EffectsPipeline
 
 
@@ -19,19 +19,29 @@ class EffectRow(QFrame):
     # Signals
     configure_requested = pyqtSignal(int)  # Effect index
     delete_requested = pyqtSignal(int)     # Effect index
+    move_requested = pyqtSignal(int, int)  # from_index, to_index
     
     def __init__(self, effect: Effect, index: int, parent=None):
         super().__init__(parent)
         self.effect = effect
         self.index = index
+        self.drag_start_position = None
         
         self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Raised)
+        self.setAcceptDrops(True)
         self.setup_ui()
     
     def setup_ui(self):
         """Set up the UI for the effect row."""
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Drag handle (visual indicator)
+        drag_label = QLabel("⋮⋮")  # Using vertical ellipsis which is more accessible
+        drag_label.setStyleSheet("color: #7f8c8d; font-size: 14px;")
+        drag_label.setToolTip("Drag to reorder effects")
+        drag_label.setAccessibleDescription("Drag handle for reordering effect")
+        layout.addWidget(drag_label)
         
         # Effect title
         title_label = QLabel(self.effect.name)
@@ -51,6 +61,49 @@ class EffectRow(QFrame):
         delete_btn.setToolTip("Remove effect")
         delete_btn.clicked.connect(lambda: self.delete_requested.emit(self.index))
         layout.addWidget(delete_btn)
+    
+    def mousePressEvent(self, event):
+        """Handle mouse press for drag initiation."""
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.drag_start_position = event.pos()
+        super().mousePressEvent(event)
+    
+    def mouseMoveEvent(self, event):
+        """Handle mouse move for drag operation."""
+        if not (event.buttons() & Qt.MouseButton.LeftButton):
+            return
+        
+        if self.drag_start_position is None:
+            return
+        
+        # Check if we've moved far enough to start a drag
+        if (event.pos() - self.drag_start_position).manhattanLength() < QApplication.startDragDistance():
+            return
+        
+        # Start drag operation
+        drag = QDrag(self)
+        mime_data = QMimeData()
+        mime_data.setText(str(self.index))
+        drag.setMimeData(mime_data)
+        
+        # Perform drag
+        drag.exec(Qt.DropAction.MoveAction)
+    
+    def dragEnterEvent(self, event):
+        """Handle drag enter event."""
+        if event.mimeData().hasText():
+            event.acceptProposedAction()
+    
+    def dropEvent(self, event):
+        """Handle drop event."""
+        if event.mimeData().hasText():
+            from_index = int(event.mimeData().text())
+            to_index = self.index
+            
+            if from_index != to_index:
+                self.move_requested.emit(from_index, to_index)
+            
+            event.acceptProposedAction()
 
 
 class EffectsPanel(QWidget):
@@ -58,13 +111,14 @@ class EffectsPanel(QWidget):
     
     # Signals
     effect_added = pyqtSignal(EffectType)
-    effect_removed = pyqtSignal(int)
+    effect_removed = pyqtSignal(int, Effect)  # Pass index and the effect being removed
     effect_configured = pyqtSignal(int)
     
     def __init__(self, pipeline: EffectsPipeline, parent=None):
         super().__init__(parent)
         self.pipeline = pipeline
         self.effect_rows = []
+        self.available_controls = set()  # Track available camera controls
         
         self.setup_ui()
     
@@ -115,12 +169,25 @@ class EffectsPanel(QWidget):
         # Add all available effect types
         for effect_type in EffectType:
             action = QAction(effect_type.value.replace('_', ' ').title(), menu)
+            
+            # Disable if control is not available for the camera
+            if self.available_controls and effect_type.value not in self.available_controls:
+                action.setEnabled(False)
+                action.setToolTip("Not available for this camera")
+            
             action.triggered.connect(lambda checked, et=effect_type: self.add_effect(et))
             menu.addAction(action)
         
         # Show menu at button position
         sender = self.sender()
         menu.exec(sender.mapToGlobal(sender.rect().bottomLeft()))
+    
+    def set_available_controls(self, controls):
+        """Update the list of available camera controls."""
+        if controls:
+            self.available_controls = set(controls.keys())
+        else:
+            self.available_controls = set()
     
     def add_effect(self, effect_type: EffectType):
         """Add a new effect to the pipeline."""
@@ -131,9 +198,11 @@ class EffectsPanel(QWidget):
     
     def remove_effect(self, index: int):
         """Remove an effect from the pipeline."""
-        if self.pipeline.remove_effect(index):
+        # Get the effect before removing it
+        effect = self.pipeline.get_effect(index)
+        if effect and self.pipeline.remove_effect(index):
             self.refresh_effects()
-            self.effect_removed.emit(index)
+            self.effect_removed.emit(index, effect)
     
     def configure_effect(self, index: int):
         """Open configuration dialog for an effect."""
@@ -152,7 +221,13 @@ class EffectsPanel(QWidget):
             row = EffectRow(effect, i)
             row.configure_requested.connect(self.configure_effect)
             row.delete_requested.connect(self.remove_effect)
+            row.move_requested.connect(self.move_effect)
             
             # Insert before the stretch
             self.effects_layout.insertWidget(i, row)
             self.effect_rows.append(row)
+    
+    def move_effect(self, from_index: int, to_index: int):
+        """Move an effect to a new position."""
+        if self.pipeline.move_effect(from_index, to_index):
+            self.refresh_effects()
