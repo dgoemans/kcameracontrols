@@ -33,8 +33,7 @@ class KCameraControlsApp:
         self.app.setApplicationName("KCamera Controls")
         self.app.setOrganizationName("KCameraControls")
         
-        # Set application-wide Qt attributes for better compatibility
-        self.app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
+        # Note: High DPI support is automatic in Qt6/PyQt6, no need to set AA_UseHighDpiPixmaps
         
         # Main window
         self.main_window = MainWindow()
