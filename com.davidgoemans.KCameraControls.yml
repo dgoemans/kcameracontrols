@@ -1,0 +1,51 @@
+app-id: com.davidgoemans.KCameraControls
+runtime: org.kde.Platform
+runtime-version: '6.8'
+sdk: org.kde.Sdk
+command: kcameracontrols
+finish-args:
+  # X11 + XShm access
+  - --share=ipc
+  - --socket=fallback-x11
+  # Wayland access
+  - --socket=wayland
+  # Camera access
+  - --device=all
+  # System tray
+  - --talk-name=org.kde.StatusNotifierWatcher
+  - --own-name=org.kde.StatusNotifierItem
+  # D-Bus access for KDE integration
+  - --talk-name=org.freedesktop.Notifications
+  - --filesystem=xdg-run/pipewire-0:ro
+modules:
+  - name: v4l-utils
+    config-opts:
+      - --disable-static
+      - --disable-doxygen-doc
+      - --disable-libdvbv5
+      - --disable-v4l-utils
+      - --disable-qv4l2
+    sources:
+      - type: archive
+        url: https://www.linuxtv.org/downloads/v4l-utils/v4l-utils-1.24.1.tar.bz2
+        sha256: cbb7fe8a6307f5ce533a05cded70bb93c3ba06395ab9b6d007eb53b75d805f5b
+
+  - name: python3-PyQt6
+    buildsystem: simple
+    build-commands:
+      - pip3 install --verbose --prefix=${FLATPAK_DEST} PyQt6>=6.4.0 PyQt6-Qt6>=6.4.0
+    build-options:
+      build-args:
+        - --share=network
+
+  - name: kcameracontrols
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 kcameracontrols.py ${FLATPAK_DEST}/bin/kcameracontrols
+      - cp -r ui backend ${FLATPAK_DEST}/bin/
+      - install -Dm644 com.davidgoemans.KCameraControls.desktop ${FLATPAK_DEST}/share/applications/com.davidgoemans.KCameraControls.desktop
+      - install -Dm644 com.davidgoemans.KCameraControls.metainfo.xml ${FLATPAK_DEST}/share/metainfo/com.davidgoemans.KCameraControls.metainfo.xml
+      - install -Dm644 resources/kcameracontrols.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/com.davidgoemans.KCameraControls.svg
+    sources:
+      - type: dir
+        path: .

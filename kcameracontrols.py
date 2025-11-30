@@ -12,11 +12,16 @@ import os
 # This allows importing ui and backend modules when the script is in /usr/local/bin
 # but the modules are in /usr/local/share/kcameracontrols
 script_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Check if we're running from /usr/local/bin (system installation)
 if script_dir == "/usr/local/bin":
     install_dir = "/usr/local/share/kcameracontrols"
     if os.path.isdir(install_dir) and install_dir not in sys.path:
         sys.path.insert(0, install_dir)
+# Check if we're running from flatpak or app installation where modules are in same dir
+elif os.path.isdir(os.path.join(script_dir, "ui")) and os.path.isdir(os.path.join(script_dir, "backend")):
+    if script_dir not in sys.path:
+        sys.path.insert(0, script_dir)
 
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
 from PyQt6.QtCore import Qt
