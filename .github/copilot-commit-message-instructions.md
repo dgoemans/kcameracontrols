@@ -1,0 +1,5 @@
+- Keep commit messages short and cover the biggest changes only
+- Avoid adding descriptive texts like "for clarity", "for readability"
+- Avoid prefixes like fix, feat, chore, etc.
+- Describe what the commit does in present tense, eg: "Add event summary query and endpoint", "Refactor getProductInfos query into smaller functions"
+- If possible, start the commit message with a verb.
