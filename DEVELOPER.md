@@ -119,6 +119,32 @@ The application supports these V4L2 controls (when available on the camera):
 
 Not all cameras support all controls. The application dynamically detects available controls.
 
+### Control Ranges and Effective Values
+
+**Important Note about Control Ranges:**
+
+Camera controls report min/max ranges via V4L2, but the effective range (values that actually change camera behavior) may be smaller than the reported range. This is a hardware limitation, not a software issue.
+
+For example:
+- A camera may report `zoom_absolute: min=100, max=500`
+- But the camera hardware may only respond to values up to 200
+- Values from 200-500 are accepted but have no additional effect
+
+**Why this happens:**
+1. V4L2 drivers report theoretical maximum values from firmware
+2. Camera hardware may not utilize the full theoretical range
+3. Different camera models have different effective ranges
+4. There's no standard V4L2 mechanism to query "effective" ranges
+
+**What the application does:**
+- Uses V4L2-reported ranges (device-specific, driver-provided)
+- Validates ranges are sensible (min < max, both values exist)
+- Displays full range to users with informational text
+- Skips controls with invalid or missing range data
+
+**For users:**
+If a control doesn't seem to respond across its full range, this is normal camera behavior. Adjust the slider to find the effective range for your specific camera model.
+
 ## UI Design
 
 The UI follows KDE Breeze design guidelines:
