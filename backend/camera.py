@@ -10,6 +10,10 @@ import shutil
 from typing import List, Dict, Optional, Any
 
 
+# Control types that should have min/max validation
+INTEGER_CONTROL_TYPES = ('int', 'integer', 'int64')
+
+
 class CameraDevice:
     """Represents a V4L2 camera device."""
     
@@ -152,7 +156,7 @@ class CameraBackend:
                             control[param_name] = param_value
                         
                         # Validate that we have at least min and max for integer controls
-                        if ctrl_type.lower() in ('int', 'integer', 'int64'):
+                        if ctrl_type.lower() in INTEGER_CONTROL_TYPES:
                             if 'min' not in control or 'max' not in control:
                                 print(f"Warning: Control '{name}' is missing min/max values, skipping")
                                 continue

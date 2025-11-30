@@ -108,7 +108,7 @@ class EffectConfigDialog(QDialog):
                     form_layout.addRow(f"{control_name.replace('_', ' ').title()}:", control_layout)
                     
                     # Add informational text about the range
-                    info_text = QLabel(f"Effective range may vary by device")
+                    info_text = QLabel("Effective range may vary by device")
                     info_text.setStyleSheet("color: #7f8c8d; font-size: 10px;")
                     info_text.setWordWrap(True)
                     form_layout.addRow("", info_text)
