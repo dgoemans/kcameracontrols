@@ -1,0 +1,1 @@
+Don't create unnecessary readme/markdown/documentation files in this repository. Only the normal files that are part of the project documentation should be present such as readme, license and anything in the .github folder. Avoid adding extra files that do not contribute to the project's purpose or documentation.
