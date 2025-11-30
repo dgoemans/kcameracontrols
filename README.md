@@ -75,9 +75,34 @@ kcameracontrols/
 ├── backend/                 # Camera and effects backend
 │   ├── camera.py           # Camera detection and control
 │   └── effects.py          # Effects management
-└── resources/               # Icons and assets
+├── resources/               # Icons and assets
+├── demo.py                  # Backend functionality demo
+├── test_components.py       # Component tests
+└── install.sh              # Installation script
 ```
+
+### Testing
+
+Run the backend demo to see the effects pipeline in action:
+```bash
+python3 demo.py
+```
+
+Run component tests:
+```bash
+python3 test_components.py
+```
+
+### Documentation
+
+- [DEVELOPER.md](DEVELOPER.md) - Developer documentation and architecture
+- [SCREENSHOTS.md](SCREENSHOTS.md) - UI screenshots and documentation
+- [UI_MOCKUP.md](UI_MOCKUP.md) - Detailed UI mockup and design specs
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT License
+MIT License - See [LICENSE](LICENSE) file for details
