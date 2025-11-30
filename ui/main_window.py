@@ -159,6 +159,13 @@ class MainWindow(QMainWindow):
         refresh_btn.clicked.connect(self.refresh_cameras)
         input_layout.addWidget(refresh_btn)
         
+        # Preview button
+        self.preview_btn = QPushButton("Preview")
+        self.preview_btn.setToolTip("Open camera preview")
+        self.preview_btn.clicked.connect(self.open_preview)
+        self.preview_btn.setEnabled(False)  # Disabled until camera is selected
+        input_layout.addWidget(self.preview_btn)
+        
         layout.addLayout(input_layout)
         
         # Effects panel
@@ -233,9 +240,53 @@ class MainWindow(QMainWindow):
             controls = self.camera_backend.get_camera_controls(camera)
             # Update effects panel with available controls
             self.effects_panel.set_available_controls(controls)
+            # Enable preview button
+            self.preview_btn.setEnabled(True)
         else:
             self.current_camera = None
             self.effects_panel.set_available_controls(None)
+            # Disable preview button
+            self.preview_btn.setEnabled(False)
+    
+    def open_preview(self):
+        """Open camera preview using external application."""
+        if not self.current_camera:
+            return
+        
+        import subprocess
+        import shutil
+        
+        # Try to find a suitable video player
+        viewers = [
+            ('mpv', ['mpv', f'av://v4l2:{self.current_camera.device_path}', '--profile=low-latency']),
+            ('ffplay', ['ffplay', '-f', 'v4l2', '-i', self.current_camera.device_path]),
+            ('vlc', ['vlc', f'v4l2://{self.current_camera.device_path}']),
+            ('cheese', ['cheese', '-d', self.current_camera.device_path]),
+            ('guvcview', ['guvcview', '-d', self.current_camera.device_path]),
+        ]
+        
+        viewer_found = False
+        for viewer_name, cmd in viewers:
+            if shutil.which(viewer_name):
+                try:
+                    subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    viewer_found = True
+                    break
+                except Exception as e:
+                    print(f"Failed to launch {viewer_name}: {e}")
+                    continue
+        
+        if not viewer_found:
+            QMessageBox.warning(
+                self,
+                "Preview Unavailable",
+                "No suitable video player found. Please install one of the following:\n"
+                "• mpv (recommended)\n"
+                "• ffplay (part of ffmpeg)\n"
+                "• VLC\n"
+                "• Cheese\n"
+                "• guvcview"
+            )
     
     def configure_effect(self, effect_index):
         """Open configuration dialog for an effect."""
